@@ -9,36 +9,22 @@ const { promisify } = require('util')
 
 	const sequelize = new Sequelize(databaseUrl)
 
-	const Test = sequelize.define('test', {
-		num: {
-			type: Sequelize.DataTypes.INTEGER,
-			defaultValue: 999
+	const User = sequelize.import(__dirname + "/models/user")
+	const Task = sequelize.import(__dirname + "/models/task")
+
+	const kids = await User.findAll({
+		where: {
+			age:{
+				$lt: 21
+			}
 		},
-		data: {
-			type: Sequelize.DataTypes.STRING
-		}
-	},
-		{
-			timestamps: false
-		}
-	)
-
-	const randomNumber = Math.floor(Math.random()*1000)
-
-	const newTest = await Test
-		.build({
-			num: randomNumber,
-			data: "random - node.js insertion test"
-		})
-		.save()
-
-	console.log(newTest.dataValues)
-
-	const testAll = await Test.findAll()
-	const values = testAll.map((entry)=> entry.dataValues).sort((a,b)=> a.num - b.num)
-	values.map((value)=>{
-		console.log(`${value.num}: ${value.data}`)
+		order: sequelize.col('age')
 	})
+
+	kids.map((kid)=>{
+		console.log(' >',kid.dataValues.name)
+	})
+
 	process.exit()
 
 })()
